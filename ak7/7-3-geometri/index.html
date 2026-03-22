@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="sv" data-theme="pt-light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>7.3 Geometri — AD Matematik</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,700;1,400&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ═══════════════════════════════════════════════════════════════
+       TEMAN — identiska med portalen
+    ═══════════════════════════════════════════════════════════════ */
+    :root {
+      --radius: 14px;
+      --trans: 0.32s cubic-bezier(.4,0,.2,1);
+      --font-d: 'Playfair Display', Georgia, serif;
+      --font-b: 'Sora', sans-serif;
+    }
+
+    [data-theme="ad-light"] {
+      --bg: #f2fbf8; --surface: #fff; --surface2: #e4f5ef; --border: #b8ddd4;
+      --text: #0b1e18; --muted: #527060;
+      --hdr-bg: linear-gradient(120deg,#00A19A,#007870);
+      --hdr-text: #fff;
+      --stripe: linear-gradient(90deg,#306BF0,#00A19A,#A2C617,#FBBC33,#EC6095,#FFDE14);
+      --stripe-fade: rgba(255,255,255,.30);
+      --btn-active: linear-gradient(90deg,#00A19A,#FBBC33);
+      --accent: #00A19A; --accent2: #FBBC33;
+      --shadow: 0 2px 12px rgba(0,161,154,.10);
+      --shadow-hov: 0 8px 28px rgba(0,161,154,.22);
+      --c7a: #1a6ef5; --c7b: #5ba3ff;
+    }
+    [data-theme="ad-dark"] {
+      --bg: #0c1512; --surface: #152018; --surface2: #1c2c20; --border: #283c2c;
+      --text: #e4f5ee; --muted: #6a9878;
+      --hdr-bg: linear-gradient(120deg,#081a10,#051208);
+      --hdr-text: #e4f5ee;
+      --stripe: linear-gradient(90deg,#306BF0,#00A19A,#A2C617,#FBBC33,#EC6095,#FFDE14);
+      --stripe-fade: rgba(255,255,255,.12);
+      --btn-active: linear-gradient(90deg,#00A19A,#FBBC33);
+      --accent: #4ecb8a; --accent2: #FBBC33;
+      --shadow: 0 2px 16px rgba(0,0,0,.40);
+      --shadow-hov: 0 8px 32px rgba(0,0,0,.60);
+      --c7a: #1a6ef5; --c7b: #5ba3ff;
+    }
+    [data-theme="pt-light"] {
+      --bg: #f6f4ff; --surface: #fff; --surface2: #eae6ff; --border: #ccc5f0;
+      --text: #100e28; --muted: #585078;
+      --hdr-bg: linear-gradient(120deg,#66C7C2,#F4A261 50%,#EC6095);
+      --hdr-text: #fff;
+      --stripe: linear-gradient(90deg,#66C7C2,#F4A261,#EC6095);
+      --stripe-fade: rgba(255,255,255,.35);
+      --btn-active: linear-gradient(90deg,#66C7C2,#EC6095);
+      --accent: #306BF0; --accent2: #EC6095;
+      --shadow: 0 2px 14px rgba(48,107,240,.12);
+      --shadow-hov: 0 8px 30px rgba(48,107,240,.22);
+      --c7a: #1a6ef5; --c7b: #5ba3ff;
+    }
+    [data-theme="pt-dark"] {
+      --bg: #12101c; --surface: #1c192c; --surface2: #262238; --border: #342e54;
+      --text: #eae8ff; --muted: #8880b8;
+      --hdr-bg: linear-gradient(120deg,#66C7C2,#F4A261 50%,#EC6095);
+      --hdr-text: #fff;
+      --stripe: linear-gradient(90deg,#66C7C2,#F4A261,#EC6095);
+      --stripe-fade: rgba(255,255,255,.15);
+      --btn-active: linear-gradient(90deg,#66C7C2,#EC6095);
+      --accent: #6a9aff; --accent2: #EC6095;
+      --shadow: 0 2px 16px rgba(48,107,240,.18);
+      --shadow-hov: 0 8px 36px rgba(48,107,240,.35);
+      --c7a: #1a6ef5; --c7b: #5ba3ff;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       BASE
+    ═══════════════════════════════════════════════════════════════ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--font-b);
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      transition: background var(--trans), color var(--trans);
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       HEADER
+    ═══════════════════════════════════════════════════════════════ */
+    header {
+      background: var(--hdr-bg);
+      color: var(--hdr-text);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 24px rgba(0,0,0,.20);
+    }
+
+    header::after {
+      content: '';
+      display: block;
+      height: 18px;
+      background: linear-gradient(to bottom, transparent, var(--stripe-fade));
+      pointer-events: none;
+    }
+
+    .header-inner {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 0 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      height: 64px;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 0.9rem;
+    }
+
+    .back-btn {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.22);
+      border-radius: 30px;
+      padding: 5px 12px;
+      cursor: pointer;
+      color: rgba(255,255,255,0.9);
+      font-size: 0.7rem;
+      font-family: var(--font-b);
+      font-weight: 500;
+      text-decoration: none;
+      transition: background 0.2s;
+    }
+    .back-btn:hover { background: rgba(255,255,255,0.22); }
+
+    .header-crumb {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-family: var(--font-d);
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--hdr-text);
+    }
+
+    .crumb-sep { opacity: 0.45; font-weight: 300; }
+
+    .theme-toggle {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.22);
+      border-radius: 30px;
+      padding: 5px 12px;
+      cursor: pointer;
+      color: rgba(255,255,255,0.9);
+      font-size: 0.68rem;
+      font-family: var(--font-b);
+      font-weight: 500;
+      transition: background 0.2s;
+    }
+    .theme-toggle:hover { background: rgba(255,255,255,0.22); }
+
+    /* ═══════════════════════════════════════════════════════════════
+       HERO-BAND
+    ═══════════════════════════════════════════════════════════════ */
+    .chapter-hero {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 2.5rem 2rem 1.5rem;
+      display: flex;
+      align-items: flex-start;
+      gap: 2rem;
+    }
+
+    .chapter-badge {
+      font-family: var(--font-d);
+      font-size: 3.5rem;
+      font-weight: 700;
+      line-height: 1;
+      background: linear-gradient(135deg, var(--c7a), var(--c7b));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      flex-shrink: 0;
+      letter-spacing: -0.04em;
+    }
+
+    .chapter-intro { flex: 1; }
+
+    .chapter-label {
+      font-size: 0.7rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--muted);
+      font-weight: 500;
+      margin-bottom: 0.3rem;
+    }
+
+    .chapter-title {
+      font-family: var(--font-d);
+      font-size: clamp(1.6rem, 4vw, 2.4rem);
+      font-weight: 700;
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+      color: var(--text);
+      margin-bottom: 0.5rem;
+    }
+
+    .chapter-desc {
+      font-size: 0.88rem;
+      color: var(--muted);
+      line-height: 1.65;
+      max-width: 520px;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       KUNSKAPSMÅL
+    ═══════════════════════════════════════════════════════════════ */
+    .goals-section {
+      max-width: 960px;
+      margin: 0 auto 1.5rem;
+      padding: 0 2rem;
+    }
+
+    .goals-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .goals-card::before {
+      content: '';
+      display: block;
+      height: 4px;
+      background: linear-gradient(90deg, var(--c7a), var(--c7b));
+    }
+
+    .goals-header {
+      padding: 1rem 1.4rem 0.8rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      user-select: none;
+      border-bottom: 1px solid var(--border);
+      transition: background 0.15s;
+    }
+
+    .goals-header:hover { background: var(--surface2); }
+
+    .goals-header-left {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .goals-icon { font-size: 1.1rem; }
+
+    .goals-title {
+      font-family: var(--font-d);
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .goals-chevron {
+      font-size: 0.72rem;
+      color: var(--muted);
+      transition: transform 0.28s cubic-bezier(.4,0,.2,1);
+    }
+
+    .goals-header.open .goals-chevron { transform: rotate(180deg); }
+
+    .goals-body {
+      overflow: hidden;
+      max-height: 0;
+      opacity: 0;
+      transition: max-height 0.35s cubic-bezier(.4,0,.2,1), opacity 0.25s ease;
+    }
+
+    .goals-body.open { opacity: 1; }
+
+    .goals-list {
+      list-style: none;
+      padding: 1rem 1.4rem 1.2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.55rem;
+    }
+
+    .goals-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.6rem;
+      font-size: 0.86rem;
+      line-height: 1.55;
+      color: var(--text);
+    }
+
+    .goals-list li::before {
+      content: '★';
+      font-size: 0.7rem;
+      color: var(--accent2);
+      flex-shrink: 0;
+      margin-top: 3px;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       TAGGFILTER
+    ═══════════════════════════════════════════════════════════════ */
+    .filter-section {
+      max-width: 960px;
+      margin: 0 auto 1.5rem;
+      padding: 0 2rem;
+    }
+
+    .filter-label {
+      font-size: 0.68rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      font-weight: 600;
+      margin-bottom: 0.6rem;
+    }
+
+    .filter-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+    }
+
+    .tag-btn {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 4px 12px;
+      font-size: 0.72rem;
+      font-family: var(--font-b);
+      font-weight: 500;
+      color: var(--muted);
+      cursor: pointer;
+      transition: all 0.18s;
+    }
+
+    .tag-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: var(--surface2);
+    }
+
+    .tag-btn.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       KLUSTER & PANELER
+    ═══════════════════════════════════════════════════════════════ */
+    .clusters {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 0 2rem 4rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.8rem;
+    }
+
+    .cluster { display: flex; flex-direction: column; gap: 0; }
+
+    .cluster-label {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 0 0.2rem 0.5rem;
+    }
+
+    .cluster-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+      margin-left: 0.5rem;
+    }
+
+    /* Ämnesmodul-panel */
+    .topic-panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-top: none;
+      transition: box-shadow var(--trans), transform var(--trans), opacity 0.2s;
+    }
+
+    .topic-panel:first-of-type { border-top: 1px solid var(--border); border-radius: var(--radius) var(--radius) 0 0; }
+    .topic-panel:last-of-type  { border-radius: 0 0 var(--radius) var(--radius); }
+    .topic-panel:only-of-type  { border-radius: var(--radius); border-top: 1px solid var(--border); }
+
+    .topic-panel.hidden { display: none; }
+
+    .topic-panel-link {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 0.9rem 1.2rem;
+      text-decoration: none;
+      color: var(--text);
+      transition: background 0.15s;
+    }
+
+    .topic-panel-link:hover {
+      background: var(--surface2);
+    }
+
+    .topic-panel-link:hover .panel-arrow {
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    .panel-num {
+      font-size: 0.7rem;
+      font-weight: 700;
+      min-width: 34px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 7px;
+      background: linear-gradient(135deg, var(--c7a), var(--c7b));
+      color: #fff;
+      flex-shrink: 0;
+      letter-spacing: 0.02em;
+    }
+
+    .panel-text { flex: 1; }
+
+    .panel-title {
+      font-size: 0.9rem;
+      font-weight: 500;
+      margin-bottom: 0.2rem;
+      color: var(--text);
+    }
+
+    .panel-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.3rem;
+    }
+
+    .pill {
+      font-size: 0.62rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      padding: 2px 8px;
+      border-radius: 10px;
+      border: 1px solid transparent;
+    }
+
+    .pill-video      { background: #fff0e0; color: #c05000; border-color: #f5c080; }
+    .pill-sim        { background: #e0f0ff; color: #005090; border-color: #80c0f5; }
+    .pill-drill      { background: #e8ffe8; color: #006020; border-color: #80d880; }
+    .pill-pdf        { background: #f5e8ff; color: #600090; border-color: #c080f0; }
+    .pill-exit       { background: #fff0f0; color: #900020; border-color: #f08080; }
+
+    /* Mörka teman: justera pill-färger */
+    [data-theme="ad-dark"] .pill-video,
+    [data-theme="pt-dark"] .pill-video { background: #3a1800; color: #ffb060; border-color: #804000; }
+    [data-theme="ad-dark"] .pill-sim,
+    [data-theme="pt-dark"] .pill-sim   { background: #001830; color: #80c8ff; border-color: #004080; }
+    [data-theme="ad-dark"] .pill-drill,
+    [data-theme="pt-dark"] .pill-drill { background: #001a00; color: #60e060; border-color: #004800; }
+    [data-theme="ad-dark"] .pill-pdf,
+    [data-theme="pt-dark"] .pill-pdf   { background: #200030; color: #d080ff; border-color: #500080; }
+
+    .panel-arrow {
+      font-size: 1rem;
+      color: var(--muted);
+      opacity: 0;
+      transform: translateX(-5px);
+      transition: opacity 0.15s, transform 0.15s;
+      flex-shrink: 0;
+    }
+
+    /* Klustret döljs om alla paneler är hidden */
+    .cluster.all-hidden { display: none; }
+
+    /* Ingen träff */
+    .no-results {
+      text-align: center;
+      padding: 3rem 2rem;
+      color: var(--muted);
+      font-size: 0.9rem;
+      display: none;
+    }
+
+    .no-results.visible { display: block; }
+
+    /* ═══════════════════════════════════════════════════════════════
+       FOOTER
+    ═══════════════════════════════════════════════════════════════ */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 1.2rem 2rem;
+      text-align: center;
+      font-size: 0.74rem;
+      color: var(--muted);
+      background: var(--surface2);
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       RESPONSIV
+    ═══════════════════════════════════════════════════════════════ */
+    @media (max-width: 600px) {
+      .chapter-hero { flex-direction: column; gap: 0.5rem; padding: 1.5rem 1rem 1rem; }
+      .chapter-badge { font-size: 2.5rem; }
+      .clusters, .goals-section, .filter-section { padding-left: 1rem; padding-right: 1rem; }
+      .header-inner { padding: 0 1rem; }
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       ANIMATIONER
+    ═══════════════════════════════════════════════════════════════ */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .cluster {
+      animation: fadeUp 0.45s ease both;
+    }
+
+    .cluster:nth-child(1) { animation-delay: 0.05s; }
+    .cluster:nth-child(2) { animation-delay: 0.13s; }
+    .cluster:nth-child(3) { animation-delay: 0.21s; }
+    .cluster:nth-child(4) { animation-delay: 0.29s; }
+    .cluster:nth-child(5) { animation-delay: 0.37s; }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header>
+    <div class="header-inner">
+      <div class="header-left">
+        <a class="back-btn" href="../../index.html">← Tillbaka</a>
+        <div class="header-crumb">
+          <span>Åk 7</span>
+          <span class="crumb-sep">/</span>
+          <span>7.3 Geometri</span>
+        </div>
+      </div>
+      <button class="theme-toggle" onclick="cycleTheme()">
+        <span id="themeIcon">🎨</span>
+        <span id="themeLabel">PT Ljust</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <div class="chapter-hero">
+    <div class="chapter-badge">7.3</div>
+    <div class="chapter-intro">
+      <p class="chapter-label">Årskurs 7</p>
+      <h1 class="chapter-title">Geometri</h1>
+      <p class="chapter-desc">
+        Geometri handlar om former, mått och rum. Här lär du dig att beskriva och beräkna
+        egenskaper hos figurer och kroppar — från enkla vinklar till tredimensionella volymer.
+      </p>
+    </div>
+  </div>
+
+  <!-- KUNSKAPSMÅL -->
+  <div class="goals-section">
+    <div class="goals-card">
+      <div class="goals-header" onclick="toggleGoals(this)">
+        <div class="goals-header-left">
+          <span class="goals-icon">🎯</span>
+          <span class="goals-title">Du ska kunna...</span>
+        </div>
+        <span class="goals-chevron">▼</span>
+      </div>
+      <div class="goals-body">
+        <ul class="goals-list">
+          <li>Beskriva olika månghörningar och kroppar med korrekta begrepp och enheter.</li>
+          <li>Beskriva, mäta, rita och beräkna olika vinklar.</li>
+          <li>Beskriva, mäta och rita olika månghörningar.</li>
+          <li>Beräkna omkrets och area av olika månghörningar och göra enhetsbyten i samband med dessa.</li>
+          <li>Beräkna volym av olika prismor och göra enhetsbyten i samband med dessa.</li>
+          <li>Beräkna arean av begränsningsytor.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAGGFILTER -->
+  <div class="filter-section">
+    <p class="filter-label">🔍 Filtrera på ämne</p>
+    <div class="filter-tags" id="tagBar">
+      <button class="tag-btn active" data-tag="alla"    onclick="filterTag('alla')">Alla</button>
+      <button class="tag-btn"        data-tag="begrepp" onclick="filterTag('begrepp')">Begrepp</button>
+      <button class="tag-btn"        data-tag="vinklar" onclick="filterTag('vinklar')">Vinklar</button>
+      <button class="tag-btn"        data-tag="omkrets" onclick="filterTag('omkrets')">Omkrets</button>
+      <button class="tag-btn"        data-tag="area"    onclick="filterTag('area')">Area</button>
+      <button class="tag-btn"        data-tag="volym"   onclick="filterTag('volym')">Volym</button>
+      <button class="tag-btn"        data-tag="3d"      onclick="filterTag('3d')">3D-figurer</button>
+    </div>
+  </div>
+
+  <!-- KLUSTER -->
+  <div class="clusters" id="clusters">
+
+    <!-- KLUSTER 1: Grunder -->
+    <div class="cluster" data-tags="begrepp vinklar">
+      <div class="cluster-label">📐 Grundläggande begrepp och vinklar</div>
+
+      <div class="topic-panel" data-tags="begrepp">
+        <a class="topic-panel-link" href="geo1.html">
+          <span class="panel-num">[1]</span>
+          <div class="panel-text">
+            <div class="panel-title">Geometriska begrepp</div>
+            <div class="panel-pills">
+              <span class="pill pill-video">▶ Video</span>
+              <span class="pill pill-drill">⚡ Övningar</span>
+            </div>
+          </div>
+          <span class="panel-arrow">→</span>
+        </a>
+      </div>
+
+      <div class="topic-panel" data-tags="vinklar">
+        <a class="topic-panel-link" href="geo2.html">
+          <span class="panel-num">[2]</span>
+          <div class="panel-text">
+            <div class="panel-title">Vinklar och vinkelsummor</div>
+            <div class="panel-pills">
+              <span class="pill pill-video">▶ Video</span>
+              <span class="pill pill-sim">◈ Simulering</span>
+              <span class="pill pill-drill">⚡ Övningar</span>
+            </div>
+          </div>
+          <span class="panel-arrow">→</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- KLUSTER 2: Omkrets & area -->
+    <div class="cluster" data-tags="omkrets area">
+      <div class="cluster-label">📏 Omkrets och area</div>
+
+      <div class="topic-panel" data-tags="omkrets">
+        <a class="topic-panel-link" href="geo3.html">
+          <span class="panel-num">[3]</span>
+          <div class="panel-text">
+            <div class="panel-title">Omkrets</div>
+            <div class="panel-pills">
+              <span class="pill pill-video">▶ Video</span>
+              <span class="pill pill-drill">⚡ Övningar</span>
+              <span class="pill pill-pdf">📄 PDF</span>
+            </div>
+          </div>
+          <span class="panel-arrow">→</span>
+        </a>
+      </div>
+
+      <div class="topic-panel" data-tags="area">
+        <a class="topic-panel-link" href="geo4.html">
+          <span class="panel-num">[4]</span>
+          <div class="panel-text">
+            <div class="panel-title">Area</div>
+            <div class="panel-pills">
+              <span class="pill pill-video">▶ Video</span>
+              <span class="pill pill-sim">◈ Simulering</span>
+              <span class="pill pill-drill">⚡ Övningar</span>
+              <span class="pill pill-pdf">📄 PDF</span>
+            </div>
+          </div>
+          <span class="panel-arrow">→</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- KLUSTER 3: Volym & 3D -->
+    <div class="cluster" data-tags="volym 3d">
+      <div class="cluster-label">🧊 Volym och rymdgeometri</div>
+
+      <div class="topic-panel" data-tags="volym 3d">
+        <a class="topic-panel-link" href="geo5.html">
+          <span class="panel-num">[5]</span>
+          <div class="panel-text">
+            <div class="panel-title">Volym</div>
+            <div class="panel-pills">
+              <span class="pill pill-video">▶ Video</span>
+              <span class="pill pill-sim">◈ Simulering</span>
+              <span class="pill pill-drill">⚡ Övningar</span>
+            </div>
+          </div>
+          <span class="panel-arrow">→</span>
+        </a>
+      </div>
+
+      <div class="topic-panel" data-tags="3d area volym">
+        <a class="topic-panel-link" href="geo6.html">
+          <span class="panel-num">[6]</span>
+          <div class="panel-text">
+            <div class="panel-title">Begränsningsyta</div>
+            <div class="panel-pills">
+              <span class="pill pill-video">▶ Video</span>
+              <span class="pill pill-drill">⚡ Övningar</span>
+              <span class="pill pill-pdf">📄 PDF</span>
+            </div>
+          </div>
+          <span class="panel-arrow">→</span>
+        </a>
+      </div>
+    </div>
+
+  </div>
+
+  <p class="no-results" id="noResults">Inga delkapitel matchar den valda taggen.</p>
+
+  <!-- FOOTER -->
+  <footer>
+    <p>© <span id="yr"></span> Patrick Tegnefur &nbsp;·&nbsp; Förstelärare och IT-pedagog &nbsp;·&nbsp; Alfred Dalinskolan, Huskvarna</p>
+  </footer>
+
+  <script>
+    document.getElementById('yr').textContent = new Date().getFullYear();
+
+    // ── Tema (synkat med portalen via localStorage) ─────────────
+    const THEMES = [
+      { id: 'pt-light', label: 'PT Ljust',  icon: '☀️' },
+      { id: 'pt-dark',  label: 'PT Mörkt',  icon: '🌙' },
+      { id: 'ad-light', label: 'AD Ljust',  icon: '🌿' },
+      { id: 'ad-dark',  label: 'AD Mörkt',  icon: '🌑' },
+    ];
+    let currentIdx = 0;
+
+    function applyTheme(idx) {
+      const t = THEMES[idx];
+      document.documentElement.setAttribute('data-theme', t.id);
+      document.getElementById('themeLabel').textContent = t.label;
+      document.getElementById('themeIcon').textContent  = t.icon;
+      localStorage.setItem('math-portal-theme', t.id);
+    }
+
+    function cycleTheme() {
+      currentIdx = (currentIdx + 1) % THEMES.length;
+      applyTheme(currentIdx);
+    }
+
+    const saved = localStorage.getItem('math-portal-theme');
+    const VALID = THEMES.map(t => t.id);
+    if (saved && VALID.includes(saved)) {
+      currentIdx = THEMES.findIndex(t => t.id === saved);
+    }
+    applyTheme(currentIdx);
+
+    // ── Kunskapsmål toggle ────────────────────────────────────────
+    function toggleGoals(header) {
+      const body = header.nextElementSibling;
+      const open = header.classList.toggle('open');
+      body.classList.toggle('open', open);
+      body.style.maxHeight = open ? body.scrollHeight + 'px' : '0';
+    }
+
+    // Öppna målen automatiskt
+    const goalsHeader = document.querySelector('.goals-header');
+    toggleGoals(goalsHeader);
+
+    // ── Tagg-filter ───────────────────────────────────────────────
+    function filterTag(tag) {
+      // Uppdatera aktiv knapp
+      document.querySelectorAll('.tag-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.tag === tag);
+      });
+
+      const panels   = document.querySelectorAll('.topic-panel');
+      const clusters = document.querySelectorAll('.cluster');
+
+      panels.forEach(panel => {
+        const panelTags = (panel.dataset.tags || '').split(' ');
+        const show = tag === 'alla' || panelTags.includes(tag);
+        panel.classList.toggle('hidden', !show);
+      });
+
+      // Dölj kluster om alla deras paneler är dolda
+      clusters.forEach(cluster => {
+        const visiblePanels = cluster.querySelectorAll('.topic-panel:not(.hidden)');
+        cluster.classList.toggle('all-hidden', visiblePanels.length === 0);
+      });
+
+      // Visa "ingen träff" om allting är dolt
+      const anyVisible = document.querySelectorAll('.topic-panel:not(.hidden)').length > 0;
+      document.getElementById('noResults').classList.toggle('visible', !anyVisible);
+    }
+  </script>
+</body>
+</html>
